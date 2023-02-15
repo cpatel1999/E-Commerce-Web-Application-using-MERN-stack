@@ -6,7 +6,7 @@ const User = require('../models/user')
 
 //to generate signed token
 const jwt = require('jsonwebtoken') 
-//for authorization check
+//for authorization check. Require signin or not
 const expressJwt = require('express-jwt')
 const {errorHandler} = require('../helpers/dbErrorHandler')
 
@@ -95,10 +95,16 @@ exports.signin = (request, response) => {
     })
 }
 
-
+//user signout
 exports.signout = (request, response) => {
     response.clearCookie('t')
     response.json({
         message: "Successfully signed out "
     })
 }
+
+//protects routes from unauthorized access
+exports.requireSignin = expressJwt({
+    secret: process.env.JWT_SECRET,
+    userProperty: "auth"
+})
