@@ -70,6 +70,10 @@ userSchema.methods = {
         } catch(error) {
             return "";
         }
+    },
+
+    authenticate: function(plainText) {
+        return this.encryptPassword(plainText) === this.hashed_password
     }
 }
 
