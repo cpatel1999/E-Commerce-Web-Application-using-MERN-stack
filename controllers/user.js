@@ -3,18 +3,26 @@
 // }
 
 const User = require('../models/user')
+const {errorHandler} = require('../helpers/dbErrorHandler')
 
 exports.signup = (request, response) => {
+
     //user object is created to call save() method of mongoDB
     const user = new User(request.body)
+    
     //storing document using save() method. It is called using user object
     user.save((error, user) => {
         if(error) {
             // console.log(error)
             return response.status(400).json({
-                error: error
+                error: errorHandler(error)
             })
         }
+    
+        //Hides the sensitive user info.
+        //For that simply set those fields to undefined
+        user.salt = undefined
+        user.hashed_password = undefined
         response.json({
             user: user
         })
