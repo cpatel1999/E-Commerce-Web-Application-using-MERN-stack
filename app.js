@@ -9,6 +9,8 @@ const morgan = require('morgan')
 const bodyParser = require('body-parser')
 //To store user credentials in the cookie
 const cookieParser = require('cookie-parser')
+//To perform the validation while providing user information during signup
+const expressValidator = require('express-validator')
 
 //import routes
 const useRoutes = require('./routes/user')
@@ -29,6 +31,7 @@ mongoose.connect(process.env.DATABASE, {
 app.use(morgan('dev'))
 app.use(bodyParser.json()) //Returns the json data from the request body
 app.use(cookieParser())
+app.use(expressValidator())
 
 //routes middleware
 app.use("/api", useRoutes)
