@@ -5,6 +5,7 @@ const crypto = require('crypto')
 //uuid/v1 is used to generate unique strings
 const uuidv1 = require('uuid/v1')
 
+const bcrypt = require('bcrypt')
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -26,7 +27,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    salt: String,
+    // salt: String,
     role: {                     //Defines the role of the person
         type: Number,
         default: 0              //0 means the normal user, 1 means admin
@@ -39,7 +40,12 @@ const userSchema = new mongoose.Schema({
     { timestamps: true }
 )
 
+//schema allows us to create multiple virtual keywords and methods
+
 //virtual field
+//password is created
+//This virtual field password will be used to refer to hashed_password.
+//We can directly use password as a variable.
 userSchema.virtual('password')
 .set(function(password) {
     this._password = password
@@ -50,10 +56,12 @@ userSchema.virtual('password')
     return this._password
 })
 
+//method to create the hashed_password
+//we can create maultiple methods
 userSchema.methods = {
     encryptPassword: function(password) {
         if(!password) {
-            return '';
+            return "";
         }
         try {
             return crypto.createHmac('sha1', this.salt)
@@ -65,4 +73,21 @@ userSchema.methods = {
     }
 }
 
-module.exports = mongoose.model("User", userSchema)
+
+
+
+// //password encryption using bcrypt npm package.
+// //pre function ensures that before saving the document, the password will be hashed.
+// //So, function(next) will be executed before saving the user document.
+// userSchema.pre('save', function(next) {
+//     const user = this
+//     //Password and number of time to perform hashing/encryption
+//     bcrypt.hash(user.password, 10, (error, encrypted) => {
+//         user.password = encrypted
+//         next()
+//     })
+// })
+
+
+const User = mongoose.model("User", userSchema)
+module.exports = User
