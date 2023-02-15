@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    // salt: String,
+    salt: String,
     role: {                     //Defines the role of the person
         type: Number,
         default: 0              //0 means the normal user, 1 means admin

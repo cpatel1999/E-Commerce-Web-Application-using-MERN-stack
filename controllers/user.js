@@ -63,6 +63,7 @@ exports.signin = (request, response) => {
         }
         //if user is found make sure the email and password match
         //create authenticate method in User model
+        // console.log(user)
         if(!user.authenticate(password)){
             return response.status(401).json({
                 error: "Email and password don't match"
