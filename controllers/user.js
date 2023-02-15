@@ -94,3 +94,11 @@ exports.signin = (request, response) => {
         })
     })
 }
+
+
+exports.signout = (request, response) => {
+    response.clearCookie('t')
+    response.json({
+        message: "Successfully signed out "
+    })
+}
