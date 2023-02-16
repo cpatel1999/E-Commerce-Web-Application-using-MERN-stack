@@ -108,3 +108,33 @@ exports.requireSignin = expressJwt({
     secret: process.env.JWT_SECRET,
     userProperty: "auth"
 })
+
+//main use is to prevent the authorized user to access other authorized users profile
+//two users, user A and user B
+//user A is logged in and user A wants to access user B by providing user B's id in the URL, e.g. -->'/secret/:userId'. Here, userId will be user B's id.
+//In that case,
+//request.profile ----> true as user B is found
+//request.auth ----> true as user A is authenticated
+//request.profile._id == request.auth._id ----> false, as the user A's id is not equal to user B's id. 
+//So, over all result will be false.
+//So the user A is not allowed to access user B's information.
+//this is what we want.
+exports.isAuth = (request, response, next) => {
+    let user = request.profile && request.auth && request.profile._id == request.auth._id
+    if(!user) {
+        return response.status(403).json({
+            error: "Access denied"
+        })
+    }
+    next()
+}
+
+//If the user is admin then only the user can access his/her own profile.
+exports.isAdmin = (request, response, next) => {
+    if(request.profile.role === 0) {
+        return response.status(403).json({
+            error: "Admin resourse! Access denied"
+        })
+    }
+    next()
+}
