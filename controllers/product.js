@@ -162,3 +162,33 @@ exports.update = (request, response) => {
         })
     })
 }
+
+
+//sell (popular) and arrival (new arrivals)
+//by sell = /products?sortBy=sold&order=desc&limit=4
+//by arrival = /products?sortBy=createdAt&order=desc&limit=4
+//If no params are sent, then all products are returned
+
+exports.list = (request, response) => {
+
+    let sortBy = request.query.sortBy ? request.query.sortBy : '_id'
+    let order = request.query.order ? request.query.order : 'asc'
+    let limit = request.query.limit ? parseInt(request.query.limit) : 6     //changes to integer
+
+    Product.find()
+        .select("-photo")       //deselect the photo as we do not want photo
+        .populate("category")
+        .sort([                 //sort function accepts the array of arrays
+            [sortBy,
+            order]
+        ])
+        .limit(limit)
+        .exec((error, products) => {    //callback function
+            if(error) {
+                return response.status(400).json({
+                    error: "Products not found"
+                })
+            }
+            return response.json(products)
+        })
+}
