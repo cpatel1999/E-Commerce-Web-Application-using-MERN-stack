@@ -120,6 +120,7 @@ exports.requireSignin = expressJwt({
 //So the user A is not allowed to access user B's information.
 //this is what we want.
 exports.isAuth = (request, response, next) => {
+    console.log(request.auth)
     let user = request.profile && request.auth && request.profile._id == request.auth._id
     if(!user) {
         return response.status(403).json({
