@@ -9,6 +9,29 @@ const fs = require('fs')
 const Product = require('../models/product')
 const errorHandler = require('../helpers/dbErrorHandler')
 
+//find a product by product id
+exports.productById = (request, response, next, id) => {
+    Product.findById(id, (error, product) => {
+        if(error || !product) {
+            return response.status(400).json({
+                error: "Product not found"
+            })
+        }
+        request.product = product
+        next()
+    })
+}
+
+//read product
+exports.read = (request, response) => {
+    request.product.photo = undefined       //we don't want to send photo in response. Because it can cause performance issues.
+    let product = request.product
+    return response.json({
+        product
+    })
+}
+
+//create a product document
 exports.create = (request, response) => {
     
     let form = new formidable.IncomingForm() //gets a form data
@@ -62,6 +85,21 @@ exports.create = (request, response) => {
             return response.json({
                 result
             })
+        })
+    })
+}
+
+
+exports.remove = (request, response) => {
+    let product = request.product
+    product.remove((error, deletedProduct) => {
+        if(error) {
+            return response.status(400).json({
+                error: errorHandler(error)
+            })
+        }
+        return response.json({
+            message: "Product deleted"
         })
     })
 }
