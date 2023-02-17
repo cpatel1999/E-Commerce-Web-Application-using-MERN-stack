@@ -23,10 +23,14 @@ exports.create = (request, response) => {
 
         let product = new Product(fields)
         if(files.photo) {        //here, 'photo' is the name of the field in the front end. For example, name = "photo"
-            product.photo.data = fs.readFilesSync(files.photo.filepath)
-            product.photo.contentType = files.photo.mimetype
+            product.photo.data = fs.readFileSync(files.photo.path)
+            product.photo.contentType = files.photo.type
+
+            //For the newer version use this
+            // product.photo.data = fs.readFileSync(files.photo.path)
+            // product.photo.contentType = files.photo.type
         }
-        
+
         product.save((error, result) => {
             if(error) {
                 return response.status(400).json({
