@@ -9,7 +9,14 @@ const fs = require('fs')
 const Product = require('../models/product')
 const errorHandler = require('../helpers/dbErrorHandler')
 
-//find a product by product id
+
+/**
+ * find a product by product id
+ * @param {*} request 
+ * @param {*} response 
+ * @param {*} next 
+ * @param {*} id 
+ */
 exports.productById = (request, response, next, id) => {
     Product.findById(id, (error, product) => {
         if(error || !product) {
@@ -22,7 +29,13 @@ exports.productById = (request, response, next, id) => {
     })
 }
 
-//read product
+
+/**
+ * read product
+ * @param {*} request 
+ * @param {*} response 
+ * @returns 
+ */
 exports.read = (request, response) => {
     request.product.photo = undefined       //we don't want to send photo in response. Because it can cause performance issues.
     let product = request.product
@@ -31,7 +44,12 @@ exports.read = (request, response) => {
     })
 }
 
-//create a product document
+
+/**
+ * create a product document
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.create = (request, response) => {
     
     let form = new formidable.IncomingForm() //gets a form data
@@ -89,7 +107,11 @@ exports.create = (request, response) => {
     })
 }
 
-
+/**
+ * remove specific product
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.remove = (request, response) => {
     let product = request.product
     product.remove((error, deletedProduct) => {
@@ -104,7 +126,11 @@ exports.remove = (request, response) => {
     })
 }
 
-
+/**
+ * Update specific product
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.update = (request, response) => {
     
     let form = new formidable.IncomingForm() //gets a form data
@@ -164,18 +190,19 @@ exports.update = (request, response) => {
 }
 
 
-//sell (popular) and arrival (new arrivals)
-//by sell = /products?sortBy=sold&order=desc&limit=4
-//by arrival = /products?sortBy=createdAt&order=desc&limit=4
-//If no params are sent, then all products are returned
-
+/**
+ * sell (popular) and arrival (new arrivals)
+ * by sell = /products?sortBy=sold&order=desc&limit=4
+ * by arrival = /products?sortBy=createdAt&order=desc&limit=4
+ * If no params are sent, then all products are returned
+ */
 exports.list = (request, response) => {
 
     let sortBy = request.query.sortBy ? request.query.sortBy : '_id'
     let order = request.query.order ? request.query.order : 'asc'
     let limit = request.query.limit ? parseInt(request.query.limit) : 6     //changes to integer
 
-    Product.find()
+    Product.find()              //n oparameter in find() method as we want a list of all products
         .select("-photo")       //deselect the photo as we do not want photo
         .populate("category")
         .sort([                 //sort function accepts the array of arrays
@@ -191,4 +218,31 @@ exports.list = (request, response) => {
             }
             return response.json(products)
         })
+}
+
+
+/**
+ * it will find the products based on the requested product's category
+ * other products that has the same category will be returned
+ */
+exports.listRelated = (request, response) => {
+    let limit = request.query.limit ? parseInt(request.query.limit) : 6
+
+    Product.find({
+        _id: {
+            $ne: request.product        //$ne stands for not include. It finds all the products except current product
+        },
+        category: request.product.category
+    })
+    .limit(limit)
+    .populate('category', '_id, name')  //while populating category we don't want all the fields of category. So we have specified the required fields
+    .exec((error, products) => {
+        if(error) {
+            return response.status(400).json({
+                error: "Products not found"
+            })
+        }
+        console.log(products.length)
+        return response.json(products)
+    })
 }

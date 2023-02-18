@@ -8,7 +8,7 @@ const {
 
 const {requireSignin, isAuth, isAdmin} = require('../controllers/auth')
 const { userById } = require('../controllers/user')
-const { productById, read, remove, update, list } = require('../controllers/product')
+const { productById, read, remove, update, list, listRelated } = require('../controllers/product')
 
 router.param('userId', userById)
 router.param('productId', productById)
@@ -18,5 +18,6 @@ router.post('/product/create/:userId', requireSignin, isAuth, isAdmin, create)
 router.delete('/product/:productId/:userId', requireSignin, isAuth, isAdmin, remove)
 router.put('/product/:productId/:userId', requireSignin, isAuth, isAdmin, update)
 router.get('/products', list)
+router.get('/products/related/:productId', listRelated)
 
 module.exports = router;
