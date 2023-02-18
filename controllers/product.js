@@ -246,3 +246,19 @@ exports.listRelated = (request, response) => {
         return response.json(products)
     })
 }
+
+/**
+ * finds all the categories that are used in Product collection
+ * @param {*} request 
+ * @param {*} response 
+ */
+exports.listCategories = (request, response) => {
+    Product.distinct("category", {}, (error, categories) => {           //finds all the categories that are used in product
+        if(error) {
+            return response.status(400).json({
+                error: "Categories not found"
+            })
+        }
+        return response.json(categories)
+    })        
+}

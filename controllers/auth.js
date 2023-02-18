@@ -1,6 +1,3 @@
-// module.exports = (request, response) => {
-//     response.send("Hello From Node")
-// }
 
 const User = require('../models/user')
 
@@ -10,6 +7,12 @@ const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
 const {errorHandler} = require('../helpers/dbErrorHandler')
 
+/**
+ * User signup
+ * Creates a new user document and store it in the User Collection
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.signup = (request, response) => {
 
     //user object is created to call save() method of mongoDB
@@ -50,6 +53,11 @@ exports.signup = (request, response) => {
 }
 
 
+/**
+ * User sign in
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.signin = (request, response) => {
     //find the user based on email
     const {email, password} = request.body
@@ -95,7 +103,11 @@ exports.signin = (request, response) => {
     })
 }
 
-//user signout
+/**
+ * user signout
+ * @param {*} request 
+ * @param {*} response 
+ */
 exports.signout = (request, response) => {
     response.clearCookie('t')
     response.json({
@@ -103,22 +115,31 @@ exports.signout = (request, response) => {
     })
 }
 
-//protects routes from unauthorized access
+/**
+ * protects routes from unauthorized access
+ */
 exports.requireSignin = expressJwt({
     secret: process.env.JWT_SECRET,
     userProperty: "auth"
 })
 
-//main use is to prevent the authorized user to access other authorized users profile
-//two users, user A and user B
-//user A is logged in and user A wants to access user B by providing user B's id in the URL, e.g. -->'/secret/:userId'. Here, userId will be user B's id.
-//In that case,
-//request.profile ----> true as user B is found
-//request.auth ----> true as user A is authenticated
-//request.profile._id == request.auth._id ----> false, as the user A's id is not equal to user B's id. 
-//So, over all result will be false.
-//So the user A is not allowed to access user B's information.
-//this is what we want.
+
+/**
+ * main use is to prevent the authorized user to access other authorized users profile
+ * two users, user A and user B
+ * user A is logged in and user A wants to access user B by providing user B's id in the URL, e.g. -->'/secret/:userId'. Here, userId will be user B's id.
+ * In that case,
+ * request.profile ----> true as user B is found
+ * request.auth ----> true as user A is authenticated
+ * request.profile._id == request.auth._id ----> false, as the user A's id is not equal to user B's id. 
+ * So, over all result will be false.
+ * So the user A is not allowed to access user B's information.
+ * this is what we want.
+ * @param {*} request 
+ * @param {*} response 
+ * @param {*} next 
+ * @returns 
+ */
 exports.isAuth = (request, response, next) => {
     console.log(request.auth)
     let user = request.profile && request.auth && request.profile._id == request.auth._id
@@ -130,7 +151,13 @@ exports.isAuth = (request, response, next) => {
     next()
 }
 
-//If the user is admin then only the user can access his/her own profile.
+/**
+ * If the user is admin then only the user can access his/her own profile.
+ * @param {*} request 
+ * @param {*} response 
+ * @param {*} next 
+ * @returns 
+ */
 exports.isAdmin = (request, response, next) => {
     if(request.profile.role === 0) {
         return response.status(403).json({
