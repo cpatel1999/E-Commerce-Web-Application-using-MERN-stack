@@ -3,7 +3,7 @@ const router = express.Router()
 
 //controllers
 const { 
-    create
+    create, listBySearch
 } = require('../controllers/product')
 
 const {requireSignin, isAuth, isAdmin} = require('../controllers/auth')
@@ -20,5 +20,6 @@ router.put('/product/:productId/:userId', requireSignin, isAuth, isAdmin, update
 router.get('/products', list)
 router.get('/products/related/:productId', listRelated)
 router.get('/products/categories', listCategories)
+router.post('/products/by/search', listBySearch)
 
 module.exports = router;
