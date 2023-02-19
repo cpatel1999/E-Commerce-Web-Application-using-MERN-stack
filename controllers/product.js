@@ -2,6 +2,7 @@
 //If we want to get image data from form then we can use multer
 const formidable = require('formidable')
 
+//loadash is used to update the data
 const _ = require('lodash')
 
 const fs = require('fs')
@@ -79,7 +80,7 @@ exports.create = (request, response) => {
         // 1mb = 1000000
 
         if(files.photo) {        //here, 'photo' is the name of the field in the front end. For example, name = "photo"
-            console.log("FILES PHOTO", files.photo)
+            // console.log("FILES PHOTO", files.photo)
             if(files.photo.size > 1000000) {
                 return response.status(400).json({
                     error: "Image should be less than 1mb in size"
@@ -153,7 +154,7 @@ exports.update = (request, response) => {
             })
         }
 
-
+        //lodash is used to update the fields
         let product = request.product
         product = _.extend(product, fields)
 
@@ -235,7 +236,7 @@ exports.listRelated = (request, response) => {
         category: request.product.category
     })
     .limit(limit)
-    .populate('category', '_id, name')  //while populating category we don't want all the fields of category. So we have specified the required fields
+    .populate('category', '_id name')  //while populating category we don't want all the fields of category. So we have specified the required fields
     .exec((error, products) => {
         if(error) {
             return response.status(400).json({
