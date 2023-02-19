@@ -269,14 +269,14 @@ exports.listCategories = (request, response) => {
  * we will show categories in checkbox and price range in radio buttons
  * as the user clicks on those checkbox and radio buttons
  * we will make api request and show the products to users based on what he wants
- * @param {*} req 
- * @param {*} res 
+ * @param {*} request 
+ * @param {*} response 
  */
-exports.listBySearch = (req, res) => {
-    let order = req.body.order ? req.body.order : "desc";
-    let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
-    let limit = req.body.limit ? parseInt(req.body.limit) : 100;
-    let skip = parseInt(req.body.skip);
+exports.listBySearch = (request, response) => {
+    let order = request.body.order ? request.body.order : "desc";
+    let sortBy = request.body.sortBy ? request.body.sortBy : "_id";
+    let limit = request.body.limit ? parseInt(request.body.limit) : 100;
+    let skip = parseInt(request.body.skip);
     let findArgs = {};
 
     // console.log(order, sortBy, limit, skip, req.body.filters);
@@ -287,17 +287,17 @@ exports.listBySearch = (req, res) => {
     //    category = Node
     //]
 
-    for (let key in req.body.filters) {
-        if (req.body.filters[key].length > 0) {
+    for (let key in request.body.filters) {
+        if (request.body.filters[key].length > 0) {
             if (key === "price") {
                 // gte -  greater than price [0-10]
                 // lte - less than
                 findArgs[key] = {
-                    $gte: req.body.filters[key][0],
-                    $lte: req.body.filters[key][1]
+                    $gte: request.body.filters[key][0],
+                    $lte: request.body.filters[key][1]
                 };
             } else {
-                findArgs[key] = req.body.filters[key];
+                findArgs[key] = request.body.filters[key];
             }
         }
     }
@@ -310,13 +310,27 @@ exports.listBySearch = (req, res) => {
         .limit(limit)
         .exec((err, data) => {
             if (err) {
-                return res.status(400).json({
+                return response.status(400).json({
                     error: "Products not found"
                 });
             }
-            res.json({
+            response.json({
                 size: data.length,
                 data
             });
         });
 };
+
+/**
+ * returns the product photo
+ * @param {*} request 
+ * @param {*} response 
+ * @param {*} response 
+ */
+exports.photo = (request, response, next) => {
+    if(request.product.photo.data) {
+        response.set('Content-Type', request.product.photo.contentType)
+        return response.send(request.product.photo.data)
+    }
+    next()
+}
