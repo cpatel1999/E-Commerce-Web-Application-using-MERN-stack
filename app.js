@@ -11,6 +11,8 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 //To perform the validation while providing user information during signup
 const expressValidator = require('express-validator')
+//For communication between front end and back end, as front end app is on port 3001 and backend app is on port 8000
+const cors = require('cors')
 
 //import routes
 const authRoutes = require('./routes/auth')
@@ -35,6 +37,7 @@ app.use(morgan('dev'))
 app.use(bodyParser.json()) //Returns the json data from the request body
 app.use(cookieParser())
 app.use(expressValidator())
+app.use(cors())
 
 //routes middleware
 app.use("/api", authRoutes)
